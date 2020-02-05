@@ -7,7 +7,28 @@ performance = DiscreteDistribution({'Poor': 1. / 5, 'Moderate': 1. / 5, 'Good': 
                                     'Excellent': 1. / 5})
 
 # The door containing the prize is also a random process
-learnerState = DiscreteDistribution({'Novice': 1. / 4, 'Beginner': 1. / 4, 'Intermediate': 1. / 4, 'Expert': 1. / 4})
+learnerState = ConditionalProbabilityTable(
+    [['Poor', 'Novice', 0.50],
+     ['Poor', 'Beginner', 0.30],
+     ['Poor', 'Intermediate', 0.15],
+     ['Poor', 'Expert', 0.05],
+     ['Moderate', 'Novice', 0.30],
+     ['Moderate', 'Beginner', 0.50],
+     ['Moderate', 'Intermediate', 0.15],
+     ['Moderate', 'Expert', 0.05],
+     ['Good', 'Novice', 0.15],
+     ['Good', 'Beginner', 0.25],
+     ['Good', 'Intermediate', 0.45],
+     ['Good', 'Expert', 0.15],
+     ['VeryGood', 'Novice', 0.10],
+     ['VeryGood', 'Beginner', 0.15],
+     ['VeryGood', 'Intermediate', 0.40],
+     ['VeryGood', 'Expert', 0.35],
+     ['Excellent', 'Novice', 0.05],
+     ['Excellent', 'Beginner', 0.15],
+     ['Excellent', 'Intermediate', 0.30],
+     ['Excellent', 'Expert', 0.50]], [performance])
+
 
 # The door Monty picks, depends on the choice of the guest and the prize door
 contentComplexity = ConditionalProbabilityTable(
@@ -80,9 +101,10 @@ d3 = State(contentComplexity, name="contentComplexity")
 network = BayesianNetwork("Learner Classifier With Bayesian Networks")
 network.add_states(d1, d2, d3)
 network.add_edge(d1, d3)
+network.add_edge(d1, d2)
 network.add_edge(d2, d3)
 network.bake()
 
-beliefs = network.predict_proba({'performance' : 'VeryGood', 'learnerState' : 'Novice'})
+beliefs = network.predict_proba({'performance' : 'Excellent'})
 beliefs = map(str, beliefs)
 print("n".join( "{}t{}".format( state.name, str(belief) ) for state, belief in zip( network.states, beliefs )))
